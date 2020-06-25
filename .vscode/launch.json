@@ -1,0 +1,38 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch p.js",
+      "autoAttachChildProcesses": false,
+      "internalConsoleOptions": "openOnSessionStart",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/distributable/sandbox/p.js",
+      "skipFiles": [ "<node_internals>/**" ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Test",
+      "autoAttachChildProcesses": false,
+      "runtimeVersion": "13.14.0",
+      "internalConsoleOptions": "openOnSessionStart",
+      "outputCapture": "std",
+      "port": 9229,
+      "preLaunchTask": "build",
+      "runtimeArgs": [
+        "debug",
+        "--break",
+        "distributable/test/library/migration.test.js"
+      ],
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/ava",
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+    }  
+  ]
+}

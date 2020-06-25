@@ -1,0 +1,85 @@
+{
+  "author": "virtualpatterns.com <code@virtualpatterns.com> (http://www.virtualpatterns.com)",
+  "ava": {
+    "failFast": true,
+    "files": [
+      "distributable/test/**/*.test.*"
+    ],
+    "nodeArguments": [
+      "--no-warnings",
+      "--unhandled-rejections=strict"
+    ],
+    "require": [
+      "@virtualpatterns/mablung-source-map-support/install.js"
+    ],
+    "verbose": true
+  },
+  "c8": {
+    "exclude": [
+      "distributable/test"
+    ],
+    "reporter": [
+      "lcov"
+    ]
+  },
+  "description": "TBD",
+  "exports": "./distributable/index.js",
+  "license": "GPL-3.0+",
+  "name": "@virtualpatterns/mablung-sqlite-migration",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/virtualpatterns/mablung-sqlite-migration"
+  },
+  "scripts": {
+    "refresh:10": "shx rm -f package-lock.json",
+    "refresh:20": "shx rm -Rf node_modules",
+    "refresh:30": "npm cache clean --force",
+    "refresh:40": "npm install",
+    "refresh": "run-s refresh:*",
+    "upgrade:10": "npm-check-updates --upgrade",
+    "upgrade:20": "shx rm -f package-lock.json",
+    "upgrade:30": "npm install",
+    "upgrade": "run-s upgrade:*",
+    "clean": "shx rm -Rf coverage distributable process",
+    "lint:10": "eslint --ignore-path .gitignore source",
+    "lint:20": "depcheck --ignores=\"@babel/*,babel-*,eslint-*,@virtualpatterns/mablung-*,sqlite3\"",
+    "lint": "run-s --silent lint:*",
+    "build:10": "babel source --copy-files --extensions .cjs,.js --keep-file-extension --out-dir distributable --source-maps",
+    "build": "run-s --silent clean lint build:*",
+    "test:10": "c8 ava",
+    "test": "run-s --silent build \"test:10 {@}\" --",
+    "post:test:10": "git add coverage distributable",
+    "post:test:20": "git commit --message=\"post-test\"",
+    "post:test": "run-s --silent test post:test:*",
+    "run:10": "node --no-warnings --unhandled-rejections=strict",
+    "run": "run-s build \"run:10 {@}\" --",
+    "push:10": "npm version prerelease",
+    "push:20": "git push origin master",
+    "push": "run-s --silent post:test push:*"
+  },
+  "type": "module",
+  "version": "0.0.1-0",
+  "devDependencies": {
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.2",
+    "@babel/plugin-syntax-import-meta": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "@virtualpatterns/mablung-babel-plugin-replace": "file:../mablung-babel-plugin-replace",
+    "@virtualpatterns/mablung-source-map-support": "file:../mablung-source-map-support",
+    "ava": "^3.9.0",
+    "babel-eslint": "^10.1.0",
+    "c8": "^7.2.0",
+    "depcheck": "^0.9.2",
+    "eslint": "^7.2.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "fs-extra": "^9.0.1",
+    "npm-check-updates": "^7.0.1",
+    "npm-run-all": "^4.1.5",
+    "shx": "^0.3.2",
+    "sql-formatter": "^2.3.3"
+  },
+  "dependencies": {
+    "@virtualpatterns/mablung-migration": "file:../mablung-migration",
+    "sqlite3": "^4.2.0"
+  }
+}
