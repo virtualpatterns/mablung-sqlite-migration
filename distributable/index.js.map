@@ -1,0 +1,1 @@
+{"version":3,"sources":["../source/index.js"],"names":[],"mappings":"AAAA,cAAc,wBAAd","sourcesContent":["export * from './library/migration.js'"],"file":"index.js"}
