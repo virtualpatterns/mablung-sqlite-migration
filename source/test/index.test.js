@@ -5,6 +5,7 @@ Test.before(async (test) => {
 })
 
 ;[
+  'Database',
   'Migration'
 ].forEach((name) => {
 
