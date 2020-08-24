@@ -2,7 +2,7 @@ import FileSystem from 'fs-extra';
 import Path from 'path';
 import Test from 'ava';
 
-import { Migration } from '../../index.js';
+import { Migration } from './migration.js';
 
 Test.before(async test => {
 
@@ -17,12 +17,14 @@ Test.serial('Migration.getMigration(databasePath)', async test => {
 
   let migration = await Migration.getMigration(test.context.databasePath);
 
-  test.is(migration.length, 2);
+  test.is(migration.length, 3);
 
   test.is(migration[0].name, '00000000000010-create-table-migration');
   test.is(await migration[0].isInstalled(), false);
   test.is(migration[1].name, '00000000000020-create-index-migration');
   test.is(await migration[1].isInstalled(), false);
+  test.is(migration[2].name, '20200823213000-null');
+  test.is(await migration[2].isInstalled(), false);
 
 });
 
@@ -32,10 +34,11 @@ Test.serial('Migration.installMigration(databasePath)', async test => {
 
   let migration = await Migration.getMigration(test.context.databasePath);
 
-  test.is(migration.length, 2);
+  test.is(migration.length, 3);
 
   test.is(await migration[0].isInstalled(), true);
   test.is(await migration[1].isInstalled(), true);
+  test.is(await migration[2].isInstalled(), true);
 
 });
 
@@ -45,10 +48,11 @@ Test.serial('Migration.uninstallMigration(databasePath)', async test => {
 
   let migration = await Migration.getMigration(test.context.databasePath);
 
-  test.is(migration.length, 2);
+  test.is(migration.length, 3);
 
   test.is(await migration[0].isInstalled(), false);
   test.is(await migration[1].isInstalled(), false);
+  test.is(await migration[2].isInstalled(), false);
 
 });
 //# sourceMappingURL=migration.test.js.map
