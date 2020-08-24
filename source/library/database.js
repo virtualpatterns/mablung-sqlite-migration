@@ -23,6 +23,7 @@ class Database extends EventEmitter {
     return this._path
   }
 
+  /* c8 ignore next 3 */
   get mode() {
     return this._mode
   }
@@ -65,7 +66,7 @@ class Database extends EventEmitter {
 
   }
 
-  /* c8 ignore next 4 */
+  /* c8 ignore next 3 */
   beginTransaction() {
     return this.run('begin transaction')
   }
@@ -247,29 +248,29 @@ class Database extends EventEmitter {
 
   }
 
-  all(query, parameter = []) {
-    // console.log('-'.repeat(80))
-    // console.log('Database.all(query, parameter)')
-    // console.log('-'.repeat(80))
-    // console.log()
-    // console.log(SQLFormat.format(query))
-    // console.log()
+  // all(query, parameter = []) {
+  //   // console.log('-'.repeat(80))
+  //   // console.log('Database.all(query, parameter)')
+  //   // console.log('-'.repeat(80))
+  //   // console.log()
+  //   // console.log(SQLFormat.format(query))
+  //   // console.log()
 
-    return new Promise((resolve, reject) => {
+  //   return new Promise((resolve, reject) => {
 
-      this._database.all(query, parameter, (error, row) => {
+  //     this._database.all(query, parameter, (error, row) => {
 
-        if (error) {
-          reject(error)
-        } else {
-          resolve(row)
-        }
+  //       if (error) {
+  //         reject(error)
+  //       } else {
+  //         resolve(row)
+  //       }
 
-      })
+  //     })
 
-    })
+  //   })
 
-  }
+  // }
 
   close() {
 
