@@ -64,7 +64,7 @@ Test('Migration.uninstallMigration(databasePath)', async test => {
 
 });
 
-Test.only('migrationIndex', async test => {
+Test('migrationIndex', async test => {
 
   let databasePath = 'process/data/migrationIndex.db';
   await FileSystem.ensureDir(Path.dirname(databasePath));
