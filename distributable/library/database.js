@@ -110,6 +110,20 @@ class Database extends EventEmitter {
     return this.run('drop index migrationIndex');
   }
 
+  explainIndexMigration(name) {
+
+    let query = ' explain query plan \
+                  select      true \
+                  from        migration \
+                  indexed by  migrationIndex \
+                  where       migration.name = $name and \
+                              migration.installed is not null and \
+                              migration.uninstalled is null';
+
+    return this.all(query, { '$name': name });
+
+  }
+
   // selectAllMigration() {
 
   //   let query = ' select    migration.name, \
@@ -248,29 +262,29 @@ class Database extends EventEmitter {
 
   }
 
-  // all(query, parameter = []) {
-  //   // console.log('-'.repeat(80))
-  //   // console.log('Database.all(query, parameter)')
-  //   // console.log('-'.repeat(80))
-  //   // console.log()
-  //   // console.log(SQLFormat.format(query))
-  //   // console.log()
+  all(query, parameter = []) {
+    // console.log('-'.repeat(80))
+    // console.log('Database.all(query, parameter)')
+    // console.log('-'.repeat(80))
+    // console.log()
+    // console.log(SQLFormat.format(query))
+    // console.log()
 
-  //   return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
 
-  //     this._database.all(query, parameter, (error, row) => {
+      this._database.all(query, parameter, (error, row) => {
 
-  //       if (error) {
-  //         reject(error)
-  //       } else {
-  //         resolve(row)
-  //       }
+        if (error) {
+          reject(error);
+        } else {
+          resolve(row);
+        }
 
-  //     })
+      });
 
-  //   })
+    });
 
-  // }
+  }
 
   close() {
 
