@@ -1,0 +1,2 @@
+QUERY PLAN
+`--SEARCH TABLE migration USING COVERING INDEX migrationIndex (name=?)

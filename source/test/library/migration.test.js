@@ -2,20 +2,15 @@ import FileSystem from 'fs-extra'
 import Path from 'path'
 import Test from 'ava'
 
+import { Database } from '../../index.js'
 import { Migration } from './migration.js'
 
-Test.before(async (test) => {
+Test('Migration.getMigration(databasePath)', async (test) => {
 
-  let databasePath = 'process/data/data.db'
+  let databasePath = 'process/data/getMigration.db'
   await FileSystem.ensureDir(Path.dirname(databasePath))
 
-  test.context.databasePath = databasePath
-
-})
-
-Test.serial('Migration.getMigration(databasePath)', async (test) => {
-
-  let migration = await Migration.getMigration(test.context.databasePath)
+  let migration = await Migration.getMigration(databasePath)
 
   test.is(migration.length, 3)
   
@@ -28,30 +23,73 @@ Test.serial('Migration.getMigration(databasePath)', async (test) => {
 
 })
 
-Test.serial('Migration.installMigration(databasePath)', async (test) => {
+Test('Migration.installMigration(databasePath)', async (test) => {
 
-  await Migration.installMigration(test.context.databasePath)
+  let databasePath = 'process/data/installMigration.db'
+  await FileSystem.ensureDir(Path.dirname(databasePath))
 
-  let migration = await Migration.getMigration(test.context.databasePath)
+  await Migration.installMigration(databasePath)
 
-  test.is(migration.length, 3)
+  try {
+    
+    let migration = await Migration.getMigration(databasePath)
 
-  test.is(await migration[0].isInstalled(), true)
-  test.is(await migration[1].isInstalled(), true)
-  test.is(await migration[2].isInstalled(), true)
+    test.is(migration.length, 3)
+
+    test.is(await migration[0].isInstalled(), true)
+    test.is(await migration[1].isInstalled(), true)
+    test.is(await migration[2].isInstalled(), true)
+
+  } finally {
+    await Migration.uninstallMigration(databasePath)
+  }
 
 })
 
-Test.serial('Migration.uninstallMigration(databasePath)', async (test) => {
+Test('Migration.uninstallMigration(databasePath)', async (test) => {
 
-  await Migration.uninstallMigration(test.context.databasePath)
+  let databasePath = 'process/data/uninstallMigration.db'
+  await FileSystem.ensureDir(Path.dirname(databasePath))
 
-  let migration = await Migration.getMigration(test.context.databasePath)
+  await Migration.installMigration(databasePath)
+  await Migration.uninstallMigration(databasePath)
+
+  let migration = await Migration.getMigration(databasePath)
 
   test.is(migration.length, 3)
 
   test.is(await migration[0].isInstalled(), false)
   test.is(await migration[1].isInstalled(), false)
   test.is(await migration[2].isInstalled(), false)
+
+})
+
+Test('migrationIndex', async (test) => {
+
+  let databasePath = 'process/data/migrationIndex.db'
+  await FileSystem.ensureDir(Path.dirname(databasePath))
+
+  await Migration.installMigration(databasePath)
+
+  try {
+    
+    let database = new Database(databasePath)
+
+    await database.open()
+
+    try {
+
+      let explanation = await database.explainIndexMigration('migrationIndex')
+
+      test.log(explanation[0].detail)
+      test.is(explanation[0].detail, 'SEARCH TABLE migration USING COVERING INDEX migrationIndex (name=?)')
+
+    } finally {
+      await database.close()
+    }
+
+  } finally {
+    await Migration.uninstallMigration(databasePath)
+  }
 
 })
