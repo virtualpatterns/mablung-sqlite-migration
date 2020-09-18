@@ -203,7 +203,7 @@ class Database extends EventEmitter {
         if (error) {
           reject(error);
         } else {
-          resolve();
+          resolve({ 'changes': this.changes, 'lastID': this.lastID });
         }
 
       });
