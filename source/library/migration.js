@@ -40,6 +40,10 @@ class Migration extends BaseMigration {
     return this._database.uninstallMigration(this._name)
   }
 
+  static createDatabase(...parameter) {
+    return new Database(...parameter)
+  }
+
   static createMigration(name, path = Path.normalize(`${FolderPath}/../../source/library/migration`), templatePath = Path.normalize(`${FolderPath}/../../source/library/migration/template.js`)) {
     return super.createMigration(name, path, templatePath)
   }
@@ -52,7 +56,7 @@ class Migration extends BaseMigration {
     if (database instanceof Database) {
       databasePath = database.path
     } else {
-      database = new Database(databasePath)
+      database = this.createDatabase(databasePath)
     }
 
     return (await Promise.all([ super.getMigration(), this.getMigrationFromPath(`${FolderPath}/migration`, [ '*.js' ], [ 'template.js' ], database) ])).flat().sort()
@@ -67,7 +71,7 @@ class Migration extends BaseMigration {
     if (database instanceof Database) {
       databasePath = database.path
     } else {
-      database = new Database(databasePath)
+      database = this.createDatabase(databasePath)
     }
 
     return super.getMigrationFromPath(path, includePattern, excludePattern, database)
@@ -83,7 +87,7 @@ class Migration extends BaseMigration {
     if (database instanceof Database) {
       databasePath = database.path
     } else {
-      database = new Database(databasePath)
+      database = this.createDatabase(databasePath)
     }
 
     await database.open()
@@ -114,7 +118,7 @@ class Migration extends BaseMigration {
     if (database instanceof Database) {
       databasePath = database.path
     } else {
-      database = new Database(databasePath)
+      database = this.createDatabase(databasePath)
     }
 
     await database.open()

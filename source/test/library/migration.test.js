@@ -2,7 +2,7 @@ import FileSystem from 'fs-extra'
 import Path from 'path'
 import Test from 'ava'
 
-import { Database } from '../../index.js'
+import { Database } from './database.js'
 import { Migration } from './migration.js'
 
 Test('Migration.getMigration(databasePath)', async (test) => {

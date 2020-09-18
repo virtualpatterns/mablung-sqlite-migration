@@ -6,6 +6,16 @@ class Migration extends BaseMigration {
     super(path, database)
   }
 
+  async install() {
+    await this._database.installNull()
+    await super.install()
+  }
+
+  async uninstall() {
+    await this._database.uninstallNull()
+    await super.uninstall()
+  }
+
 }
 
 export default Migration
