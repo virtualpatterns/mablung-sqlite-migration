@@ -49,7 +49,7 @@ Test('Database.explainIndexMigration()', async (test) => {
 
     try {
 
-      let explanation = await database.explainIndexMigration('migrationIndex')
+      let explanation = await database.explainIndexMigration()
 
       test.log(explanation[0].detail)
       test.is(explanation[0].detail, 'SEARCH TABLE migration USING COVERING INDEX migrationIndex (name=?)')
