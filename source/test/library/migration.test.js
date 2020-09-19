@@ -2,7 +2,6 @@ import FileSystem from 'fs-extra'
 import Path from 'path'
 import Test from 'ava'
 
-import { Database } from './database.js'
 import { Migration } from './migration.js'
 
 Test('Migration.getMigration(databasePath)', async (test) => {
@@ -61,35 +60,5 @@ Test('Migration.uninstallMigration(databasePath)', async (test) => {
   test.is(await migration[0].isInstalled(), false)
   test.is(await migration[1].isInstalled(), false)
   test.is(await migration[2].isInstalled(), false)
-
-})
-
-Test('migrationIndex', async (test) => {
-
-  let databasePath = 'process/data/migrationIndex.db'
-  await FileSystem.ensureDir(Path.dirname(databasePath))
-
-  await Migration.installMigration(databasePath)
-
-  try {
-    
-    let database = new Database(databasePath)
-
-    await database.open()
-
-    try {
-
-      let explanation = await database.explainIndexMigration('migrationIndex')
-
-      test.log(explanation[0].detail)
-      test.is(explanation[0].detail, 'SEARCH TABLE migration USING COVERING INDEX migrationIndex (name=?)')
-
-    } finally {
-      await database.close()
-    }
-
-  } finally {
-    await Migration.uninstallMigration(databasePath)
-  }
 
 })

@@ -18,21 +18,15 @@
       "type": "node",
       "request": "launch",
       "name": "Test",
-      "autoAttachChildProcesses": false,
-      "runtimeVersion": "13.14.0",
-      "internalConsoleOptions": "openOnSessionStart",
-      "outputCapture": "std",
-      "port": 9229,
       "preLaunchTask": "build",
-      "runtimeArgs": [
-        "debug",
-        "--break",
-        "distributable/test/library/migration.test.js"
-      ],
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/ava",
+      "runtimeArgs": [
+        "distributable/test/library/database.test.js"
+      ],
+      "outputCapture": "std",
       "skipFiles": [
         "<node_internals>/**/*.js"
       ]
-    }  
+    }
   ]
 }

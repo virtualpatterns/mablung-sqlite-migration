@@ -110,20 +110,6 @@ class Database extends EventEmitter {
     return this.run('drop index migrationIndex')
   }
 
-  explainIndexMigration(name) {
-
-    let query = ' explain query plan \
-                  select      true \
-                  from        migration \
-                  indexed by  migrationIndex \
-                  where       migration.name = $name and \
-                              migration.installed is not null and \
-                              migration.uninstalled is null'
-
-    return this.all(query, { '$name': name })
-
-  }
-
   // selectAllMigration() {
 
   //   let query = ' select    migration.name, \
@@ -198,12 +184,12 @@ class Database extends EventEmitter {
 
     return new Promise((resolve, reject) => {
 
-      this._database.run(statement, parameter, (error) => {
+      this._database.run(statement, parameter, function(error) { // Note that this cannot be an arrow function because of the use of this
 
         if (error) {
           reject(error)
         } else {
-          resolve()
+          resolve({ 'numberOfChanges': this.changes })
         }
 
       })
