@@ -248,6 +248,30 @@ class Database extends EventEmitter {
 
   }
 
+  first(query, parameter = []) {
+    // console.log('-'.repeat(80))
+    // console.log('Database.first(query, parameter)')
+    // console.log('-'.repeat(80))
+    // console.log()
+    // console.log(SQLFormat.format(query))
+    // console.log()
+
+    return new Promise((resolve, reject) => {
+
+      this._database.get(query, parameter, (error, row) => {
+
+        if (error) {
+          reject(error);
+        } else {
+          resolve(row);
+        }
+
+      });
+
+    });
+
+  }
+
   all(query, parameter = []) {
     // console.log('-'.repeat(80))
     // console.log('Database.all(query, parameter)')
