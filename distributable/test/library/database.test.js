@@ -5,7 +5,7 @@ import Test from 'ava';
 import { Database } from './database.js';
 import { Migration } from './migration.js';
 
-Test('Database.run(statement, parameter)', async test => {
+Test('Database.run(statement, parameter) returns { numberOfChanges }', async test => {
 
   let databasePath = 'process/data/run.db';
   await FileSystem.ensureDir(Path.dirname(databasePath));
@@ -34,9 +34,9 @@ Test('Database.run(statement, parameter)', async test => {
 
 });
 
-Test('Database.explainIndexMigration()', async test => {
+Test('migrationIndex', async test => {
 
-  let databasePath = 'process/data/explainIndexMigration.db';
+  let databasePath = 'process/data/migrationIndex.db';
   await FileSystem.ensureDir(Path.dirname(databasePath));
 
   await Migration.installMigration(databasePath);
@@ -49,17 +49,23 @@ Test('Database.explainIndexMigration()', async test => {
 
     try {
 
-      let explanation = await database.explainIndexMigration();
+      let detail = null;
+      [{ detail }] = await database.isMigrationInstalled(test.title, true);
 
-      test.log(explanation[0].detail);
-      test.is(explanation[0].detail, 'SEARCH TABLE migration USING COVERING INDEX migrationIndex (name=?)');
+      test.log(detail);
+      test.is(detail, 'SEARCH TABLE migration USING COVERING INDEX migrationIndex (name=?)');
+
+      [{ detail }] = await database.uninstallMigration(test.title, true);
+
+      test.log(detail);
+      test.is(detail, 'SEARCH TABLE migration USING INDEX migrationIndex (name=?)');
 
     } finally {
       await database.close();
     }
 
   } finally {
-    await Migration.uninstallMigration(databasePath);
+    // await Migration.uninstallMigration(databasePath)
   }
 
 });
