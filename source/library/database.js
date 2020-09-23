@@ -1,5 +1,5 @@
 import EventEmitter from 'events'
-// import SQLFormat from 'sql-formatter'
+import SQLFormat from 'sql-formatter'
 import SQLite from 'sqlite3'
 
 class Database extends EventEmitter {
@@ -66,11 +66,6 @@ class Database extends EventEmitter {
 
   }
 
-  /* c8 ignore next 3 */
-  beginTransaction() {
-    return this.run('begin transaction')
-  }
-
   existsTableMigration() {
     return this.existsTable('migration')
   }
@@ -125,7 +120,7 @@ class Database extends EventEmitter {
 
   // }
 
-  isMigrationInstalled(name) {
+  isMigrationInstalled(name, isExplained = false) {
 
     let query = ' select      true \
                   from        migration \
@@ -134,7 +129,7 @@ class Database extends EventEmitter {
                               migration.installed is not null and \
                               migration.uninstalled is null'
 
-    return this.exists(query, { '$name': name })
+    return isExplained ? this.explain(query, { '$name': name }) : this.exists(query, { '$name': name })
 
   }
 
@@ -151,7 +146,7 @@ class Database extends EventEmitter {
 
   }
 
-  uninstallMigration(name) {
+  uninstallMigration(name, isExplained = false) {
 
     let statement = ' update      migration \
                       indexed by  migrationIndex \
@@ -160,8 +155,39 @@ class Database extends EventEmitter {
                                   installed is not null and \
                                   uninstalled is null'
 
-    return this.run(statement, { '$name': name })
+    return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })
 
+  }
+
+  existsTable(name) {
+
+    let query = ' select  true \
+                  from    sqlite_master \
+                  where   sqlite_master.type = \'table\' and \
+                          sqlite_master.name = $name'
+
+    return this.exists(query, { '$name': name })
+
+  }
+
+  existsIndex(name) {
+
+    let query = ' select  true \
+                  from    sqlite_master \
+                  where   sqlite_master.type = \'index\' and \
+                          sqlite_master.name = $name'
+
+    return this.exists(query, { '$name': name })
+
+  }
+
+  async exists(query, parameter = []) {
+    return (await this.get(query, parameter)) ? true : false
+  }
+  
+  /* c8 ignore next 3 */
+  beginTransaction() {
+    return this.run('begin transaction')
   }
 
   /* c8 ignore next 4 */
@@ -222,35 +248,9 @@ class Database extends EventEmitter {
 
   }
 
-  async exists(query, parameter = []) {
-    return (await this.get(query, parameter)) ? true : false
-  }
-
-  existsTable(name) {
-
-    let query = ' select  true \
-                  from    sqlite_master \
-                  where   sqlite_master.type = \'table\' and \
-                          sqlite_master.name = $name'
-
-    return this.exists(query, { '$name': name })
-
-  }
-
-  existsIndex(name) {
-
-    let query = ' select  true \
-                  from    sqlite_master \
-                  where   sqlite_master.type = \'index\' and \
-                          sqlite_master.name = $name'
-
-    return this.exists(query, { '$name': name })
-
-  }
-
-  first(query, parameter = []) {
+  all(query, parameter = []) {
     // console.log('-'.repeat(80))
-    // console.log('Database.first(query, parameter)')
+    // console.log('Database.all(query, parameter)')
     // console.log('-'.repeat(80))
     // console.log()
     // console.log(SQLFormat.format(query))
@@ -258,7 +258,7 @@ class Database extends EventEmitter {
 
     return new Promise((resolve, reject) => {
 
-      this._database.get(query, parameter, (error, row) => {
+      this._database.all(query, parameter, (error, row) => {
 
         if (error) {
           reject(error)
@@ -272,17 +272,17 @@ class Database extends EventEmitter {
 
   }
 
-  all(query, parameter = []) {
+  explain(statement, parameter = []) {
     // console.log('-'.repeat(80))
-    // console.log('Database.all(query, parameter)')
+    // console.log('Database.explain(statement, parameter)')
     // console.log('-'.repeat(80))
     // console.log()
-    // console.log(SQLFormat.format(query))
+    // console.log(SQLFormat.format(statement))
     // console.log()
 
     return new Promise((resolve, reject) => {
 
-      this._database.all(query, parameter, (error, row) => {
+      this._database.all(`explain query plan \n${statement}`, parameter, (error, row) => {
 
         if (error) {
           reject(error)
@@ -327,5 +327,9 @@ class Database extends EventEmitter {
   }
 
 }
+
+// Database.prototype.get = function(...parameter) {
+//   return this._get(...parameter)
+// }
 
 export { Database }
