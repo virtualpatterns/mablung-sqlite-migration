@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import SQLFormat from 'sql-formatter';
+// import SQLFormat from 'sql-formatter'
 import SQLite from 'sqlite3';
 
 class Database extends EventEmitter {
@@ -28,9 +28,9 @@ class Database extends EventEmitter {
     return this._mode;
   }
 
-  open() {
+  async open() {
 
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
 
       if (this._count === 0) {
 
@@ -63,6 +63,10 @@ class Database extends EventEmitter {
       }
 
     });
+    await Promise.all([
+    this.run('pragma foreign_keys = true'),
+    this.run('pragma automatic_index = false')]);
+
 
   }
 
@@ -296,9 +300,9 @@ class Database extends EventEmitter {
 
   }
 
-  close() {
+  async close() {
 
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
 
       if (this._count === 1) {
 
