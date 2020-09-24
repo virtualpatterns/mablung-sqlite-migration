@@ -36,7 +36,7 @@ Test('Database.run(statement, parameter) returns { numberOfChanges }', async (te
 
 Test('migrationIndex', async (test) => {
 
-  let databasePath = 'process/data/migrationIndex.db'
+  let databasePath = 'process/data/migration-index.db'
   await FileSystem.ensureDir(Path.dirname(databasePath))
 
   await Migration.installMigration(databasePath)

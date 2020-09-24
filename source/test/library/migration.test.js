@@ -6,7 +6,7 @@ import { Migration } from './migration.js'
 
 Test('Migration.getMigration(databasePath)', async (test) => {
 
-  let databasePath = 'process/data/getMigration.db'
+  let databasePath = 'process/data/get-migration.db'
   await FileSystem.ensureDir(Path.dirname(databasePath))
 
   let migration = await Migration.getMigration(databasePath)
@@ -24,7 +24,7 @@ Test('Migration.getMigration(databasePath)', async (test) => {
 
 Test('Migration.installMigration(databasePath)', async (test) => {
 
-  let databasePath = 'process/data/installMigration.db'
+  let databasePath = 'process/data/install-migration.db'
   await FileSystem.ensureDir(Path.dirname(databasePath))
 
   await Migration.installMigration(databasePath)
@@ -47,7 +47,7 @@ Test('Migration.installMigration(databasePath)', async (test) => {
 
 Test('Migration.uninstallMigration(databasePath)', async (test) => {
 
-  let databasePath = 'process/data/uninstallMigration.db'
+  let databasePath = 'process/data/uninstall-migration.db'
   await FileSystem.ensureDir(Path.dirname(databasePath))
 
   await Migration.installMigration(databasePath)
