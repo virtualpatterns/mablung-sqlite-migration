@@ -26,7 +26,5 @@ Test('migrationByNameIndex', async test => {
     });
   }, databasePath);
 
-  await Migration.installMigration(databasePath);
-
 });
 //# sourceMappingURL=database-index.test.js.map
