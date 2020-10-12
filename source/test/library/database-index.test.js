@@ -26,6 +26,4 @@ Test('migrationByNameIndex', async (test) => {
     })
   }, databasePath)
 
-  await Migration.installMigration(databasePath)
-
 })
