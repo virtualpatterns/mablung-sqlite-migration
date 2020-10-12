@@ -74,40 +74,40 @@ class Database extends EventEmitter {
     return this.existsTable('migration');
   }
 
-  createTableMigration() {
+  // createTableMigration() {
 
-    let statement = ' create table migration ( \
-                        name text not null, \
-                        installed text not null, \
-                        uninstalled text, \
-                        constraint migrationKey primary key ( name ) )';
+  //   let statement = ' create table migration ( \
+  //                       name not null, \
+  //                       installed not null, \
+  //                       uninstalled, \
+  //                       constraint migrationKey primary key ( name ) )'
 
-    return this.run(statement);
+  //   return this.run(statement)
 
+  // }
+
+  // dropTableMigration() {
+  //   return this.run('drop table migration')
+  // }
+
+  existsIndexMigrationByName() {
+    return this.existsIndex('migrationByNameIndex');
   }
 
-  dropTableMigration() {
-    return this.run('drop table migration');
-  }
+  // createIndexMigration() {
 
-  existsIndexMigration() {
-    return this.existsIndex('migrationIndex');
-  }
+  //   let statement = ' create index migrationByNameIndex on migration ( \
+  //                       name, \
+  //                       installed, \
+  //                       uninstalled )'
 
-  createIndexMigration() {
+  //   return this.run(statement)
 
-    let statement = ' create index migrationIndex on migration ( \
-                        name, \
-                        installed, \
-                        uninstalled )';
+  // }
 
-    return this.run(statement);
-
-  }
-
-  dropIndexMigration() {
-    return this.run('drop index migrationIndex');
-  }
+  // dropIndexMigration() {
+  //   return this.run('drop index migrationByNameIndex')
+  // }
 
   // selectAllMigration() {
 
@@ -124,11 +124,11 @@ class Database extends EventEmitter {
 
   // }
 
-  isMigrationInstalled(name, isExplained = false) {
+  async isMigrationInstalled(name, isExplained = false) {
 
     let query = ' select      true \
                   from        migration \
-                  indexed by  migrationIndex \
+                  indexed by  migrationByNameIndex \
                   where       migration.name = $name and \
                               migration.installed is not null and \
                               migration.uninstalled is null';
@@ -137,7 +137,7 @@ class Database extends EventEmitter {
 
   }
 
-  installMigration(name) {
+  async installMigration(name) {
 
     let statement = ' insert or replace into migration (  name, \
                                                           installed, \
@@ -150,10 +150,10 @@ class Database extends EventEmitter {
 
   }
 
-  uninstallMigration(name, isExplained = false) {
+  async uninstallMigration(name, isExplained = false) {
 
     let statement = ' update      migration \
-                      indexed by  migrationIndex \
+                      indexed by  migrationByNameIndex \
                       set         uninstalled = datetime(\'now\', \'localtime\') \
                       where       name = $name and \
                                   installed is not null and \
@@ -163,7 +163,7 @@ class Database extends EventEmitter {
 
   }
 
-  existsTable(name) {
+  async existsTable(name) {
 
     let query = ' select  true \
                   from    sqlite_master \
@@ -174,7 +174,7 @@ class Database extends EventEmitter {
 
   }
 
-  existsIndex(name) {
+  async existsIndex(name) {
 
     let query = ' select  true \
                   from    sqlite_master \
@@ -190,21 +190,21 @@ class Database extends EventEmitter {
   }
 
   /* c8 ignore next 3 */
-  beginTransaction() {
+  async beginTransaction() {
     return this.run('begin transaction');
   }
 
   /* c8 ignore next 4 */
-  commitTransaction() {
+  async commitTransaction() {
     return this.run('commit transaction');
   }
 
   /* c8 ignore next 4 */
-  rollbackTransaction() {
+  async rollbackTransaction() {
     return this.run('rollback transaction');
   }
 
-  run(statement, parameter = []) {
+  async run(statement, parameter = []) {
     // console.log('-'.repeat(80))
     // console.log('Database.run(statement, parameter)')
     // console.log('-'.repeat(80))
@@ -228,7 +228,7 @@ class Database extends EventEmitter {
 
   }
 
-  get(query, parameter = []) {
+  async get(query, parameter = []) {
     // console.log('-'.repeat(80))
     // console.log('Database.get(query, parameter)')
     // console.log('-'.repeat(80))
@@ -252,7 +252,7 @@ class Database extends EventEmitter {
 
   }
 
-  all(query, parameter = []) {
+  async all(query, parameter = []) {
     // console.log('-'.repeat(80))
     // console.log('Database.all(query, parameter)')
     // console.log('-'.repeat(80))
@@ -276,7 +276,7 @@ class Database extends EventEmitter {
 
   }
 
-  explain(statement, parameter = []) {
+  async explain(statement, parameter = []) {
     // console.log('-'.repeat(80))
     // console.log('Database.explain(statement, parameter)')
     // console.log('-'.repeat(80))
@@ -328,13 +328,20 @@ class Database extends EventEmitter {
 
     });
 
+  }
+
+  async onOpen(fn) {
+
+    await this.open();
+
+    try {
+      return await fn(this);
+    } finally {
+      await this.close();
+    }
+
   }}
 
-
-
-// Database.prototype.get = function(...parameter) {
-//   return this._get(...parameter)
-// }
 
 export { Database };
 //# sourceMappingURL=database.js.map

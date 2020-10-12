@@ -32,11 +32,11 @@ class Migration extends BaseMigration {
 
   }
 
-  install() {
+  async install() {
     return this._database.installMigration(this._name);
   }
 
-  uninstall() {
+  async uninstall() {
     return this._database.uninstallMigration(this._name);
   }
 
@@ -44,7 +44,7 @@ class Migration extends BaseMigration {
     return new Database(...parameter);
   }
 
-  static createMigration(name, path = Path.normalize(`${FolderPath}/../../source/library/migration`), templatePath = Path.normalize(`${FolderPath}/../../source/library/migration/template.js`)) {
+  static async createMigration(name, path = Path.normalize(`${FolderPath}/../../source/library/migration`), templatePath = Path.normalize(`${FolderPath}/../../source/library/migration/template.js`)) {
     return super.createMigration(name, path, templatePath);
   }
 
@@ -63,7 +63,7 @@ class Migration extends BaseMigration {
 
   }
 
-  static getMigrationFromPath(path, includePattern, excludePattern, ...parameter) {// parameter is [ database ] or [ databasePath ]
+  static async getMigrationFromPath(path, includePattern, excludePattern, ...parameter) {// parameter is [ database ] or [ databasePath ]
 
     let [database] = parameter;
     let [databasePath] = parameter;
@@ -136,6 +136,27 @@ class Migration extends BaseMigration {
     } finally {
       // database.off('trace', onTrace)
       await database.close();
+    }
+
+  }
+
+  static async onInstall(fn, ...parameter) {// parameter is [ database ] or [ databasePath ]
+
+    let [database] = parameter;
+    let [databasePath] = parameter;
+
+    if (database instanceof Database) {
+      databasePath = database.path;
+    } else {
+      database = this.createDatabase(databasePath);
+    }
+
+    await this.installMigration(databasePath);
+
+    try {
+      return await fn(database);
+    } finally {
+      await this.uninstallMigration(databasePath);
     }
 
   }}
