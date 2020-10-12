@@ -11,7 +11,7 @@ class Migration extends BaseMigration {
     await this._database.open()
 
     try {
-      return await this._database.existsTableMigration()
+      return await this._database.existsIndexMigrationByName()
     } finally {
       await this._database.close()
     }
@@ -20,18 +20,17 @@ class Migration extends BaseMigration {
 
   async install() {
 
-    let statement = ' create table migration ( \
-                        name not null, \
-                        installed not null, \
-                        uninstalled, \
-                        constraint migrationKey primary key ( name ) )'
+    let statement = ' create index migrationByNameIndex on migration ( \
+                        name, \
+                        installed, \
+                        uninstalled )'
 
     return this._database.run(statement)
 
   }
 
   async uninstall() {
-    return this._database.run('drop table migration')
+    return this._database.run('drop index migrationByNameIndex')
   }
 
 }

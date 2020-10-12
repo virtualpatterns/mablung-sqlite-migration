@@ -7,11 +7,11 @@ class Migration extends BaseMigration {
   }
 
   async install() {
-    await super.install()
+    return super.install()
   }
 
   async uninstall() {
-    await super.uninstall()
+    return super.uninstall()
   }
 
 }

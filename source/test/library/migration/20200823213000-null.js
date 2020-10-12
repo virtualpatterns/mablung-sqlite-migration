@@ -7,13 +7,11 @@ class Migration extends BaseMigration {
   }
 
   async install() {
-    await this._database.installNull()
-    await super.install()
+    return super.install()
   }
 
   async uninstall() {
-    await this._database.uninstallNull()
-    await super.uninstall()
+    return super.uninstall()
   }
 
 }
