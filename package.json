@@ -46,7 +46,7 @@
     "upgrade:20": "shx rm -f package-lock.json",
     "upgrade:30": "npm install",
     "upgrade": "run-s --silent upgrade:*",
-    "clean": "shx rm -Rf coverage release process",
+    "clean": "shx rm -Rf coverage process release",
     "lint:10": "eslint --ignore-path .gitignore source",
     "lint:20": "check-dependency",
     "lint": "run-s --silent lint:*",
