@@ -8,7 +8,7 @@ Test('dependency', async (test) => {
 
   let dependency = await Check(Process.cwd())
 
-  // test.log(dependency)
+  // test.log(dependency.missing)
   test.true(Is.emptyObject(dependency.missing))
   test.deepEqual(dependency.unused, [])
 
