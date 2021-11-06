@@ -6,14 +6,14 @@ class Migration extends BaseMigration {
     super(path, database)
   }
 
-  async install() {
+  install() {
     return super.install()
   }
 
-  async uninstall() {
+  uninstall() {
     return super.uninstall()
   }
 
 }
 
-export default Migration
+export { Migration }

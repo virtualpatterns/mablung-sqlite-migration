@@ -8,12 +8,12 @@ class Migration extends BaseMigration {
 
   async isInstalled() {
 
-    await this._database.open()
+    await this.database.open()
 
     try {
-      return await this._database.existsTableMigration()
+      return this.database.existsTableMigration()
     } finally {
-      await this._database.close()
+      await this.database.close()
     }
 
   }
@@ -26,14 +26,14 @@ class Migration extends BaseMigration {
                         uninstalled, \
                         constraint migrationKey primary key ( name ) )'
 
-    return this._database.run(statement)
+    return this.database.run(statement)
 
   }
 
   async uninstall() {
-    return this._database.run('drop table migration')
+    return this.database.run('drop table migration')
   }
 
 }
 
-export default Migration
+export { Migration }

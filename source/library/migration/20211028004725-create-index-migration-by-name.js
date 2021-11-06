@@ -8,12 +8,12 @@ class Migration extends BaseMigration {
 
   async isInstalled() {
 
-    await this._database.open()
+    await this.database.open()
 
     try {
-      return await this._database.existsIndexMigrationByName()
+      return this.database.existsIndexMigrationByName()
     } finally {
-      await this._database.close()
+      await this.database.close()
     }
 
   }
@@ -25,14 +25,14 @@ class Migration extends BaseMigration {
                         installed, \
                         uninstalled )'
 
-    return this._database.run(statement)
+    return this.database.run(statement)
 
   }
 
   async uninstall() {
-    return this._database.run('drop index migrationByNameIndex')
+    return this.database.run('drop index migrationByNameIndex')
   }
 
 }
 
-export default Migration
+export { Migration }

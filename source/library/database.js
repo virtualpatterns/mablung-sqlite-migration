@@ -1,72 +1,66 @@
-import EventEmitter from 'events'
-// import SQLFormat from 'sql-formatter'
+import Is from '@pwn/is'
 import SQLite from 'sqlite3'
 
-class Database extends EventEmitter {
+class Database {
 
-  constructor(path, mode = SQLite.OPEN_READWRITE | SQLite.OPEN_CREATE) {
-    super()
+  constructor(userPath, userMode = SQLite.OPEN_READWRITE | SQLite.OPEN_CREATE) {
 
-    this._path = path
-    this._mode = mode
+    this.databasePath = userPath
+    this.databaseMode = userMode
 
-    this._database = null
-    this._count = 0
+    this.database = null
+    this.count = 0
 
-  }
-
-  _onTrace(statement) {
-    this.emit('trace', statement)
-  }
-
-  get path() {
-    return this._path
-  }
-
-  /* c8 ignore next 3 */
-  get mode() {
-    return this._mode
   }
 
   async open() {
 
-    await new Promise((resolve, reject) => {
+    if (Is.equal(this.count, 0)) {
 
-      if (this._count === 0) {
-        
-        this._database = new SQLite.Database(this._path, this._mode, (error) => {
+      await new Promise((resolve, reject) => {
 
-          if (error) {
-            reject(error)
+        this.database = new SQLite.Database(this.databasePath, this.databaseMode, (error) => {
+
+          if (Is.nil(error)) {
+            resolve()
           } else {
-
-            this._database.on('trace', this.__onTrace = (statement) => {
-              // console.log('Database.on(\'trace\', this.__onTrace = (statement) => { ... })')
-                
-              try {
-                this._onTrace(statement)
-              /* c8 ignore next 3 */
-              } catch (error) {
-                console.error(error)
-              }
-
-            })
-    
-            resolve(++this._count)
-
+            reject(error)
           }
 
         })
 
-      } else if (this._count > 0) {
-        resolve(++this._count)
-      }
+      })
+      
+      await this.execute('  pragma foreign_keys = true; \
+                            pragma automatic_index = false;')
 
-    })
-    await Promise.all([
-      this.run('pragma foreign_keys = true'),
-      this.run('pragma automatic_index = false')
-    ])
+    }
+
+    return ++this.count
+
+  }
+
+  async close() {
+
+    if (Is.equal(this.count, 1)) {
+
+      await new Promise((resolve, reject) => {
+
+        this.database.close((error) => {
+
+          if (Is.nil(error)) {
+            resolve()
+          } else {
+            reject(error)
+          }
+
+        })
+
+      })
+
+    }
+      
+    return --this.count
 
   }
 
@@ -189,37 +183,49 @@ class Database extends EventEmitter {
     return (await this.get(query, parameter)) ? true : false
   }
   
-  /* c8 ignore next 3 */
   async beginTransaction() {
     return this.run('begin transaction')
   }
 
-  /* c8 ignore next 4 */
   async commitTransaction() {
     return this.run('commit transaction')
   }
 
-  /* c8 ignore next 4 */
   async rollbackTransaction() {
     return this.run('rollback transaction')
   }
 
   async run(statement, parameter = []) {
-    // console.log('-'.repeat(80))
-    // console.log('Database.run(statement, parameter)')
-    // console.log('-'.repeat(80))
-    // console.log()
-    // console.log(SQLFormat.format(statement))
-    // console.log()
 
     return new Promise((resolve, reject) => {
 
-      this._database.run(statement, parameter, function(error) { // Note that this cannot be an arrow function because of the use of this
+      this.database.run(statement, parameter, function (error) { // Note that this cannot be an arrow function because of the use of this
 
-        if (error) {
-          reject(error)
+        if (Is.nil(error)) {
+          resolve({
+            'lastId': this.lastID,
+            'numberOfChanges': this.changes
+          })
         } else {
-          resolve({ 'numberOfChanges': this.changes })
+          reject(error)
+        }
+
+      })
+
+    })
+
+  }
+
+  async execute(statement) {
+
+    return new Promise((resolve, reject) => {
+
+      this.database.exec(statement, (error) => {
+
+        if (Is.nil(error)) {
+          resolve()
+        } else {
+          reject(error)
         }
 
       })
@@ -229,21 +235,15 @@ class Database extends EventEmitter {
   }
 
   async get(query, parameter = []) {
-    // console.log('-'.repeat(80))
-    // console.log('Database.get(query, parameter)')
-    // console.log('-'.repeat(80))
-    // console.log()
-    // console.log(SQLFormat.format(query))
-    // console.log()
 
     return new Promise((resolve, reject) => {
 
-      this._database.get(query, parameter, (error, row) => {
+      this.database.get(query, parameter, (error, row) => {
 
-        if (error) {
-          reject(error)
-        } else {
+        if (Is.nil(error)) {
           resolve(row)
+        } else {
+          reject(error)
         }
 
       })
@@ -253,21 +253,15 @@ class Database extends EventEmitter {
   }
 
   async all(query, parameter = []) {
-    // console.log('-'.repeat(80))
-    // console.log('Database.all(query, parameter)')
-    // console.log('-'.repeat(80))
-    // console.log()
-    // console.log(SQLFormat.format(query))
-    // console.log()
 
     return new Promise((resolve, reject) => {
 
-      this._database.all(query, parameter, (error, row) => {
+      this.database.all(query, parameter, (error, row) => {
 
-        if (error) {
-          reject(error)
-        } else {
+        if (Is.nil(error)) {
           resolve(row)
+        } else {
+          reject(error)
         }
 
       })
@@ -277,21 +271,15 @@ class Database extends EventEmitter {
   }
 
   async explain(statement, parameter = []) {
-    // console.log('-'.repeat(80))
-    // console.log('Database.explain(statement, parameter)')
-    // console.log('-'.repeat(80))
-    // console.log()
-    // console.log(SQLFormat.format(statement))
-    // console.log()
 
     return new Promise((resolve, reject) => {
 
-      this._database.all(`explain query plan \n${statement}`, parameter, (error, row) => {
+      this.database.all(`explain query plan \n${statement}`, parameter, (error, row) => {
 
-        if (error) {
-          reject(error)
-        } else {
+        if (Is.nil(error)) {
           resolve(row)
+        } else {
+          reject(error)
         }
 
       })
@@ -300,47 +288,18 @@ class Database extends EventEmitter {
 
   }
 
-  async close() {
+  // async onOpen(fn) {
 
-    await new Promise((resolve, reject) => {
+  //   await this.open()
 
-      if (this._count === 1) {
+  //   try {
+  //     return await fn(this)
+  //   } finally {
+  //     await this.close()
+  //   }
 
-        this._database.close((error) => {
+  // }
 
-          if (error) {
-            reject(error)
-          } else {
-
-            this._database.off('trace', this.__onTrace)
-            delete this.__onTrace
-
-            this._database = null
-            resolve(--this._count)
-
-          }
-
-        })
-
-      } else if (this._count > 1) {
-        resolve(--this._count)
-      }
-
-    })
-
-  }
-
-  async onOpen(fn) {
-
-    await this.open()
-
-    try {
-      return await fn(this)
-    } finally {
-      await this.close()
-    }
-
-  }
 }
 
 export { Database }

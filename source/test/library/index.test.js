@@ -5,9 +5,8 @@ Test.before(async (test) => {
 })
 
 ;[
-  'CreateMigration',
-  'Database',
-  'Migration'
+  'CreateLoggedDatabase',
+  'CreateLoggedMigration'
 ].forEach((name) => {
 
   Test(name, (test) => {
