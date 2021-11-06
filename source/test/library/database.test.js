@@ -378,6 +378,7 @@ Test.serial('execute(\'...\') throws SQLITE_ERROR', async (test) => {
       let query = ' delete    migration \
                     where     migration.name = \'execute(...) throws SQLITE_ERROR\''
 
+      /* c8 ignore next 2 */
       await database.execute(query)
 
     }, { 'code': 'SQLITE_ERROR' })
@@ -402,6 +403,7 @@ Test.serial('get(\'...\', { ... }) throws SQLITE_ERROR', async (test) => {
                     from      migration \
                     where     migration.name = $name'
 
+      /* c8 ignore next 2 */
       await database.get(query, { '$name': 'test-migration' })
 
     }, { 'code': 'SQLITE_ERROR' })
@@ -486,6 +488,7 @@ Test.serial('all(\'...\', { ... }) throws SQLITE_ERROR', async (test) => {
                     from      migration \
                     where     migration.name = $name'
 
+      /* c8 ignore next 2 */
       await database.all(query, { '$name': 'test-migration' })
 
     }, { 'code': 'SQLITE_ERROR' })
@@ -546,6 +549,7 @@ Test.serial('explain(\'...\', { ... }) throws SQLITE_ERROR', async (test) => {
                                 migration.installed is not null and \
                                 migration.uninstalled is null'
 
+      /* c8 ignore next 2 */
       await database.explain(query, { '$name': 'test-migration' })
 
     }, { 'code': 'SQLITE_ERROR' })
