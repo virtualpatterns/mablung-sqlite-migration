@@ -1,21 +1,23 @@
+import { CreateLoggedDatabase, CreateLoggedMigration } from '@virtualpatterns/mablung-sqlite-migration/test'
+import { Database, Migration } from '@virtualpatterns/mablung-sqlite-migration'
 import FileSystem from 'fs-extra'
 import Path from 'path'
 import Sinon from 'sinon'
 import Test from 'ava'
 
-import { CreateLoggedDatabase, CreateLoggedMigration, Database, Migration } from '../../index.js'
 import { Migration as CreateTableMigration } from '../../library/migration/20211028004347-create-table-migration.js'
 import { Migration as CreateIndexMigrationByName } from '../../library/migration/20211028004725-create-index-migration-by-name.js'
 
 const FilePath = __filePath
 const FolderPath = Path.dirname(FilePath)
+const Require = __require
+
 const DatabasePath = FilePath.replace('/release/', '/data/').replace('.test.js', '.db')
 const LogPath = FilePath.replace('/release/', '/data/').replace('.test.js', '.log')
 const LoggedDatabase = CreateLoggedDatabase(Database, LogPath)
 const LoggedMigration = CreateLoggedMigration(Migration, LoggedDatabase)
 const LoggedCreateTableMigration = CreateLoggedMigration(CreateTableMigration, LoggedDatabase)
 const LoggedCreateIndexMigrationByName = CreateLoggedMigration(CreateIndexMigrationByName, LoggedDatabase)
-const Require = __require
 
 Test.before(async () => {
   await FileSystem.ensureDir(Path.dirname(LogPath))
