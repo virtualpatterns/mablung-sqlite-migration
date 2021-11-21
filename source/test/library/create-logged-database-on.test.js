@@ -34,18 +34,32 @@ Test.serial('onTrace() throws Error', async (test) => {
 
     try {
 
-      let errorStub = Sinon
-        .stub(database.console, 'error')
-        .callsFake(function (...argument) {
-          test.is(argument.length, 1)
-          test.is(argument[0], error)
-        })
+      await Promise.all([
+        new Promise((resolve, reject) => {
 
-      try {
-        await database.existsTableMigration()
-      } finally {
-        errorStub.restore()
-      }
+          let errorStub = Sinon
+            .stub(database.console, 'error')
+            .callsFake(function (...argument) {
+
+              try {
+
+                test.is(argument.length, 1)
+                test.is(argument[0], error)
+
+                resolve()
+
+              /* c8 ignore next 3 */
+              } catch (error) {
+                reject(error)
+              } finally {
+                errorStub.restore()
+              }
+
+            })
+
+        }),
+        database.existsTableMigration()
+      ])
 
     } finally {
       await database.close()
