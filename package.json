@@ -9,9 +9,13 @@
   "files": [
     "release/library",
     "release/test/library/console.js",
+    "release/test/library/console.js.map",
     "release/test/library/create-logged-database.js",
+    "release/test/library/create-logged-database.js.map",
     "release/test/library/create-logged-migration.js",
-    "release/index.js"
+    "release/test/library/create-logged-migration.js.map",
+    "release/index.js",
+    "release/index.js.map"
   ],
   "license": "GPL-3.0+",
   "name": "@virtualpatterns/mablung-sqlite-migration",
