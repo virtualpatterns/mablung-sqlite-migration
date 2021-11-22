@@ -20,7 +20,7 @@
     "url": "https://github.com/virtualpatterns/mablung-sqlite-migration"
   },
   "type": "module",
-  "version": "0.0.1-36",
+  "version": "0.0.1-37",
   "dependencies": {
     "@pwn/is": "^1.0.2",
     "@virtualpatterns/mablung-console": "0.0.2-91",
