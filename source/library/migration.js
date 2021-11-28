@@ -10,8 +10,8 @@ const FolderPath = Path.dirname(FilePath)
 class Migration extends CreateMigration(BaseMigration, Path.normalize(`${FolderPath}/../../source/library/migration`), Path.normalize(`${FolderPath}/../../source/library/migration/template.js`), `${FolderPath}/migration`) {
 
   constructor(path, database) {
-    super(path)
-    this.database = database
+    super(Is.string(path) ? path : FilePath)
+    this.database = Is.string(path) ? database : path
   }
 
   async isInstalled() {
@@ -26,7 +26,7 @@ class Migration extends CreateMigration(BaseMigration, Path.normalize(`${FolderP
 
       switch (true) {
         case Is.equal(error.message, 'SQLITE_ERROR: no such table: migration'):
-        case Is.equal(error.message, 'SQLITE_ERROR: no such index: migrationByNameIndex'):
+        case Is.equal(error.message, 'SQLITE_ERROR: no such index: migrationByName'):
           return false
         default:
           throw error

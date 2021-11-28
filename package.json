@@ -8,7 +8,6 @@
   },
   "files": [
     "release/library",
-    "release/test/library/console.*",
     "release/test/library/create-logged-database.*",
     "release/test/library/create-logged-migration.*",
     "release/index.*"

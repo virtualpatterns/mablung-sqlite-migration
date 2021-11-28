@@ -58,7 +58,7 @@ Test.serial('onTrace() throws Error', async (test) => {
             })
 
         }),
-        database.existsTableMigration()
+        database.existsTable('migration')
       ])
 
     } finally {

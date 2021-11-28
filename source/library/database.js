@@ -64,94 +64,45 @@ class Database {
 
   }
 
-  existsTableMigration() {
-    return this.existsTable('migration')
-  }
-
-  // createTableMigration() {
-
-  //   let statement = ' create table migration ( \
-  //                       name not null, \
-  //                       installed not null, \
-  //                       uninstalled, \
-  //                       constraint migrationKey primary key ( name ) )'
-
-  //   return this.run(statement)
-
-  // }
-
-  // dropTableMigration() {
-  //   return this.run('drop table migration')
-  // }
-
-  existsIndexMigrationByName() {
-    return this.existsIndex('migrationByNameIndex')
-  }
-
-  // createIndexMigration() {
-
-  //   let statement = ' create index migrationByNameIndex on migration ( \
-  //                       name, \
-  //                       installed, \
-  //                       uninstalled )'
-
-  //   return this.run(statement)
-
-  // }
-
-  // dropIndexMigration() {
-  //   return this.run('drop index migrationByNameIndex')
-  // }
-
-  // selectAllMigration() {
-
-  //   let query = ' select    migration.name, \
-  //                           migration.installed, \
-  //                           migration.uninstalled \
-  //                 from      migration \
-  //                 order by  migration.name, \
-  //                           migration.installed, \
-  //                           migration.uninstalled'
-
-  //   await this.open()
-  //   return this.all(query)
-
-  // }
-
   async isMigrationInstalled(name, isExplained = false) {
 
     let query = ' select      true \
                   from        migration \
-                  indexed by  migrationByNameIndex \
+                  indexed by  migrationByName \
                   where       migration.name = $name and \
-                              migration.installed is not null and \
-                              migration.uninstalled is null'
+                              migration.isInstalled = true and \
+                              migration.isUnInstalled = false'
 
     return isExplained ? this.explain(query, { '$name': name }) : this.exists(query, { '$name': name })
 
   }
 
-  async installMigration(name) {
+  async installMigration(name, isExplained = false) {
 
     let statement = ' insert or replace into migration (  name, \
-                                                          installed, \
-                                                          uninstalled ) \
+                                                          isInstalled, \
+                                                          whenInstalled, \
+                                                          isUnInstalled, \
+                                                          whenUnInstalled ) \
                       values (  $name, \
+                                true, \
                                 datetime(\'now\', \'localtime\'), \
+                                false, \
                                 null )'
 
-    return this.run(statement, { '$name': name })
+    return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })
 
   }
 
   async uninstallMigration(name, isExplained = false) {
 
     let statement = ' update      migration \
-                      indexed by  migrationByNameIndex \
-                      set         uninstalled = datetime(\'now\', \'localtime\') \
+                      indexed by  migrationByName \
+                      set         isUnInstalled = true, \
+                                  whenUnInstalled = datetime(\'now\', \'localtime\') \
                       where       name = $name and \
-                                  installed is not null and \
-                                  uninstalled is null'
+                                  isInstalled = true and \
+                                  isUnInstalled = false'
 
     return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })
 
@@ -287,18 +238,6 @@ class Database {
     })
 
   }
-
-  // async onOpen(fn) {
-
-  //   await this.open()
-
-  //   try {
-  //     return await fn(this)
-  //   } finally {
-  //     await this.close()
-  //   }
-
-  // }
 
 }
 

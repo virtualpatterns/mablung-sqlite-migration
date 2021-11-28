@@ -1,9 +1,13 @@
+import Is from '@pwn/is'
+
 import { Migration as BaseMigration } from '../migration.js'
+
+const FilePath = __filePath
 
 class Migration extends BaseMigration {
 
   constructor(path, database) {
-    super(path, database)
+    super(Is.string(path) ? path : FilePath, Is.string(path) ? database : path)
   }
 
   async isInstalled() {
@@ -11,7 +15,7 @@ class Migration extends BaseMigration {
     await this.database.open()
 
     try {
-      return this.database.existsTableMigration()
+      return this.database.existsTable('migration')
     } finally {
       await this.database.close()
     }
@@ -22,8 +26,10 @@ class Migration extends BaseMigration {
 
     let statement = ' create table migration ( \
                         name not null, \
-                        installed not null, \
-                        uninstalled, \
+                        isInstalled not null, \
+                        whenInstalled not null, \
+                        isUnInstalled not null, \
+                        whenUnInstalled, \
                         constraint migrationKey primary key ( name ) )'
 
     return this.database.run(statement)
