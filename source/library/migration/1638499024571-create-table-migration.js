@@ -22,7 +22,7 @@ class Migration extends BaseMigration {
 
   }
 
-  async install() {
+  install() {
 
     let statement = ' create table migration ( \
                         name not null, \
@@ -36,7 +36,7 @@ class Migration extends BaseMigration {
 
   }
 
-  async uninstall() {
+  uninstall() {
     return this.database.run('drop table migration')
   }
 

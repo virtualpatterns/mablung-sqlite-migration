@@ -52,7 +52,7 @@ class Migration extends CreateMigration(BaseMigration, Path.normalize(`${FolderP
     return new Database(...argument)
   }
 
-  static getRawMigration(...argument) { // argument is [ database ] or [ databasePath ]
+  static getRawMigration(includeFrom, includeTo, ...argument) { // argument is [ database ] or [ databasePath ]
 
     let [ database ] = argument
     let [ databasePath ] = argument
@@ -63,26 +63,11 @@ class Migration extends CreateMigration(BaseMigration, Path.normalize(`${FolderP
       database = this.createDatabase(databasePath)
     }
 
-    return super.getRawMigration(database)
+    return super.getRawMigration(includeFrom, includeTo, database)
   
   }
 
-  // static getRawMigrationFromPath(path, includePattern, excludePattern, ...argument) { // argument is [ database ] or [ databasePath ]
-
-  //   let [ database ] = argument
-  //   let [ databasePath ] = argument
-
-  //   if (database instanceof Database) {
-  //     databasePath = database.databasePath
-  //   } else {
-  //     database = this.createDatabase(databasePath)
-  //   }
-
-  //   return super.getRawMigrationFromPath(path, includePattern, excludePattern, database)
-
-  // }
-
-  static async installMigration(...argument) { // argument is [ database ] or [ databasePath ]
+  static async installMigration(includeFrom, includeTo, ...argument) { // argument is [ database ] or [ databasePath ]
 
     let [ database ] = argument
     let [ databasePath ] = argument
@@ -96,14 +81,14 @@ class Migration extends CreateMigration(BaseMigration, Path.normalize(`${FolderP
     await database.open()
 
     try {
-      await super.installMigration(database)
+      await super.installMigration(includeFrom, includeTo, database)
     } finally {
       await database.close()
     }
 
   }
 
-  static async uninstallMigration(...argument) { // argument is [ database ] or [ databasePath ]
+  static async uninstallMigration(includeFrom, includeTo, ...argument) { // argument is [ database ] or [ databasePath ]
   
     let [ database ] = argument
     let [ databasePath ] = argument
@@ -117,7 +102,7 @@ class Migration extends CreateMigration(BaseMigration, Path.normalize(`${FolderP
     await database.open()
 
     try {
-      await super.uninstallMigration(database)
+      await super.uninstallMigration(includeFrom, includeTo, database)
     } finally {
       await database.close()
     }

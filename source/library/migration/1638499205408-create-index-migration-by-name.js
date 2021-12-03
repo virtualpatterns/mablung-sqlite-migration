@@ -22,11 +22,11 @@ class Migration extends BaseMigration {
 
   }
 
-  async install() {
+  install() {
     return this.database.run('create index migrationByName on migration ( name, isInstalled, isUnInstalled )')
   }
 
-  async uninstall() {
+  uninstall() {
     return this.database.run('drop index migrationByName')
   }
 

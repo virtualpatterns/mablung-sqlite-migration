@@ -4,8 +4,8 @@ import FileSystem from 'fs-extra'
 import Path from 'path'
 import Test from 'ava'
 
-import { Migration as CreateTableMigration } from '../../library/migration/20211028004347-create-table-migration.js'
-import { Migration as CreateIndexMigratioByName } from '../../library/migration/20211126213600-create-index-migration-by-name.js'
+import { Migration as CreateTableMigration } from '../../library/migration/1638499024571-create-table-migration.js'
+import { Migration as CreateIndexMigratioByName } from '../../library/migration/1638499205408-create-index-migration-by-name.js'
 
 const FilePath = __filePath
 
