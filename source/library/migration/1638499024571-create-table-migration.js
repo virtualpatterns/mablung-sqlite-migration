@@ -29,8 +29,7 @@ class Migration extends BaseMigration {
                         isInstalled not null, \
                         whenInstalled not null, \
                         isUnInstalled not null, \
-                        whenUnInstalled, \
-                        constraint migrationKey primary key ( name ) )'
+                        whenUnInstalled )'
 
     return this.database.run(statement)
 

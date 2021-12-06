@@ -79,11 +79,11 @@ class Database {
 
   async installMigration(name, isExplained = false) {
 
-    let statement = ' insert or replace into migration (  name, \
-                                                          isInstalled, \
-                                                          whenInstalled, \
-                                                          isUnInstalled, \
-                                                          whenUnInstalled ) \
+    let statement = ' insert into migration ( name, \
+                                              isInstalled, \
+                                              whenInstalled, \
+                                              isUnInstalled, \
+                                              whenUnInstalled ) \
                       values (  $name, \
                                 true, \
                                 datetime(\'now\', \'localtime\'), \
@@ -97,6 +97,25 @@ class Database {
   async uninstallMigration(name, isExplained = false) {
 
     let statement = ' update      migration \
+                      indexed by  migrationKey \
+                      set         isUnInstalled = true, \
+                                  whenUnInstalled = datetime(\'now\', \'localtime\') \
+                      from        ( select      migration.name                as name, \
+                                                max(migration.whenInstalled)  as maximumWhenInstalled \
+                                    from        migration \
+                                    indexed by  migrationByName \
+                                    where       migration.name = $name and \
+                                                migration.isInstalled = true and \
+                                                migration.isUninstalled = false \
+                                    group by    migration.name ) as migrationMaximumWhenInstalled \
+                      where       migration.name = migrationMaximumWhenInstalled.name and \
+                                  migration.whenInstalled = migrationMaximumWhenInstalled.maximumWhenInstalled'
+
+    return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })
+
+    /*
+
+    let statement = ' update      migration \
                       indexed by  migrationByName \
                       set         isUnInstalled = true, \
                                   whenUnInstalled = datetime(\'now\', \'localtime\') \
@@ -104,7 +123,7 @@ class Database {
                                   isInstalled = true and \
                                   isUnInstalled = false'
 
-    return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })
+    */
 
   }
 

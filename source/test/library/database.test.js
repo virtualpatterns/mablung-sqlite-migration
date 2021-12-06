@@ -7,6 +7,7 @@ import SQLite from 'sqlite3'
 import Test from 'ava'
 
 import { Migration as CreateTableMigration } from '../../library/migration/1638499024571-create-table-migration.js'
+import { Migration as CreateIndexMigrationKey } from '../../library/migration/1638499205407-create-index-migration-key.js'
 import { Migration as CreateIndexMigrationByName } from '../../library/migration/1638499205408-create-index-migration-by-name.js'
 
 const FilePath = __filePath
@@ -161,12 +162,89 @@ Test.serial('isMigrationInstalled(\'...\') returns false when migration uninstal
   try {
 
     await (new CreateTableMigration(database)).install()
+    await (new CreateIndexMigrationKey(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
 
     await database.installMigration('test-migration')
     await database.uninstallMigration('test-migration')
 
     test.is(await database.isMigrationInstalled('test-migration'), false)
+
+  } finally {
+    await database.close()
+  }
+
+})
+
+Test.serial('isMigrationInstalled(\'...\') returns true when migration reinstalled', async (test) => {
+
+  let database = new LoggedDatabase(DatabasePath)
+
+  await database.open()
+
+  try {
+
+    await (new CreateTableMigration(database)).install()
+    await (new CreateIndexMigrationKey(database)).install()
+    await (new CreateIndexMigrationByName(database)).install()
+
+    await database.installMigration('test-migration')
+    await database.uninstallMigration('test-migration')
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await database.installMigration('test-migration')
+
+    test.is(await database.isMigrationInstalled('test-migration'), true)
+
+  } finally {
+    await database.close()
+  }
+
+})
+
+Test.serial('isMigrationInstalled(\'...\') returns false when migration reuninstalled', async (test) => {
+
+  let database = new LoggedDatabase(DatabasePath)
+
+  await database.open()
+
+  try {
+
+    await (new CreateTableMigration(database)).install()
+    await (new CreateIndexMigrationKey(database)).install()
+    await (new CreateIndexMigrationByName(database)).install()
+
+    await database.installMigration('test-migration')
+    await database.uninstallMigration('test-migration')
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await database.installMigration('test-migration')
+    await database.uninstallMigration('test-migration')
+
+    test.is(await database.isMigrationInstalled('test-migration'), false)
+
+  } finally {
+    await database.close()
+  }
+
+})
+
+Test.serial('isMigrationInstalled(\'...\') returns true when  migration uninstalled', async (test) => {
+
+  let database = new LoggedDatabase(DatabasePath)
+
+  await database.open()
+
+  try {
+
+    await (new CreateTableMigration(database)).install()
+    await (new CreateIndexMigrationKey(database)).install()
+    await (new CreateIndexMigrationByName(database)).install()
+
+    await database.installMigration('test-migration')
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await database.installMigration('test-migration')
+    await database.uninstallMigration('test-migration')
+
+    test.is(await database.isMigrationInstalled('test-migration'), true)
 
   } finally {
     await database.close()

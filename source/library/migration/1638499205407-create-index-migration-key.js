@@ -15,7 +15,7 @@ class Migration extends BaseMigration {
     await this.database.open()
 
     try {
-      return this.database.existsIndex('migrationByName')
+      return this.database.existsIndex('migrationKey')
     } finally {
       await this.database.close()
     }
@@ -24,17 +24,16 @@ class Migration extends BaseMigration {
 
   install() {
 
-    let statement = ' create index migrationByName on migration ( \
+    let statement = ' create unique index migrationKey on migration ( \
                         name, \
-                        isInstalled, \
-                        isUnInstalled )'
+                        whenInstalled ) '
 
     return this.database.run(statement)
   
   }
 
   uninstall() {
-    return this.database.run('drop index migrationByName')
+    return this.database.run('drop index migrationKey')
   }
 
 }
