@@ -68,7 +68,7 @@ class Database {
 
     let query = ' select      true \
                   from        migration \
-                  indexed by  migrationByName \
+                  indexed by  migrationByNameIs \
                   where       migration.name = $name and \
                               migration.isInstalled = true and \
                               migration.isUnInstalled = false'
@@ -97,13 +97,13 @@ class Database {
   async uninstallMigration(name, isExplained = false) {
 
     let statement = ' update      migration \
-                      indexed by  migrationKey \
+                      indexed by  migrationByNameWhen \
                       set         isUnInstalled = true, \
                                   whenUnInstalled = datetime(\'now\', \'localtime\') \
                       from        ( select      migration.name                as name, \
                                                 max(migration.whenInstalled)  as maximumWhenInstalled \
                                     from        migration \
-                                    indexed by  migrationByName \
+                                    indexed by  migrationByNameIs \
                                     where       migration.name = $name and \
                                                 migration.isInstalled = true and \
                                                 migration.isUninstalled = false \
@@ -116,7 +116,7 @@ class Database {
     /*
 
     let statement = ' update      migration \
-                      indexed by  migrationByName \
+                      indexed by  migrationByNameIs \
                       set         isUnInstalled = true, \
                                   whenUnInstalled = datetime(\'now\', \'localtime\') \
                       where       name = $name and \

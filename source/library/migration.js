@@ -26,7 +26,7 @@ class Migration extends CreateMigration(BaseMigration, Path.normalize(`${FolderP
 
       switch (true) {
         case Is.equal(error.message, 'SQLITE_ERROR: no such table: migration'):
-        case Is.equal(error.message, 'SQLITE_ERROR: no such index: migrationByName'):
+        case Is.equal(error.message, 'SQLITE_ERROR: no such index: migrationByNameIs'):
           return false
         default:
           throw error
