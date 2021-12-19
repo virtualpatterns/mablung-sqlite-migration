@@ -23,7 +23,7 @@
   "dependencies": {
     "@pwn/is": "^1.0.2",
     "@virtualpatterns/mablung-console": "0.0.2-91",
-    "@virtualpatterns/mablung-migration": "0.0.1-41",
+    "@virtualpatterns/mablung-migration": "0.0.1-54",
     "fs-extra": "^10.0.0",
     "sql-formatter": "^4.0.2",
     "sqlite3": "^5.0.2"

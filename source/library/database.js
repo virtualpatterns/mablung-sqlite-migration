@@ -68,10 +68,9 @@ class Database {
 
     let query = ' select      true \
                   from        migration \
-                  indexed by  migrationByNameIs \
+                  indexed by  migrationByNameInstalled \
                   where       migration.name = $name and \
-                              migration.isInstalled = true and \
-                              migration.isUnInstalled = false'
+                              migration.isInstalled = true'
 
     return isExplained ? this.explain(query, { '$name': name }) : this.exists(query, { '$name': name })
 
@@ -79,15 +78,13 @@ class Database {
 
   async installMigration(name, isExplained = false) {
 
-    let statement = ' insert into migration ( name, \
-                                              isInstalled, \
-                                              whenInstalled, \
-                                              isUnInstalled, \
-                                              whenUnInstalled ) \
+    let statement = ' insert or replace into migration (  name, \
+                                                          isInstalled, \
+                                                          whenInstalled, \
+                                                          whenUnInstalled ) \
                       values (  $name, \
                                 true, \
-                                datetime(\'now\', \'localtime\'), \
-                                false, \
+                                datetime(\'now\', \'utc\'), \
                                 null )'
 
     return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })
@@ -96,34 +93,28 @@ class Database {
 
   async uninstallMigration(name, isExplained = false) {
 
+    // let statement = ' update      migration \
+    //                   indexed by  migrationByNameWhen \
+    //                   set         isUnInstalled = true, \
+    //                               whenUnInstalled = datetime(\'now\', \'utc\') \
+    //                   from        ( select      migration.name                as name, \
+    //                                             max(migration.whenInstalled)  as maximumWhenInstalled \
+    //                                 from        migration \
+    //                                 indexed by  migrationByNameIs \
+    //                                 where       migration.name = $name and \
+    //                                             migration.isInstalled = true and \
+    //                                             migration.isUninstalled = false \
+    //                                 group by    migration.name ) as migrationMaximumWhenInstalled \
+    //                   where       migration.name = migrationMaximumWhenInstalled.name and \
+    //                               migration.whenInstalled = migrationMaximumWhenInstalled.maximumWhenInstalled'
+
     let statement = ' update      migration \
-                      indexed by  migrationByNameWhen \
-                      set         isUnInstalled = true, \
-                                  whenUnInstalled = datetime(\'now\', \'localtime\') \
-                      from        ( select      migration.name                as name, \
-                                                max(migration.whenInstalled)  as maximumWhenInstalled \
-                                    from        migration \
-                                    indexed by  migrationByNameIs \
-                                    where       migration.name = $name and \
-                                                migration.isInstalled = true and \
-                                                migration.isUninstalled = false \
-                                    group by    migration.name ) as migrationMaximumWhenInstalled \
-                      where       migration.name = migrationMaximumWhenInstalled.name and \
-                                  migration.whenInstalled = migrationMaximumWhenInstalled.maximumWhenInstalled'
+                      indexed by  migrationByName \
+                      set         isInstalled = false, \
+                                  whenUnInstalled = datetime(\'now\', \'utc\') \
+                      where       name = $name'
 
     return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })
-
-    /*
-
-    let statement = ' update      migration \
-                      indexed by  migrationByNameIs \
-                      set         isUnInstalled = true, \
-                                  whenUnInstalled = datetime(\'now\', \'localtime\') \
-                      where       name = $name and \
-                                  isInstalled = true and \
-                                  isUnInstalled = false'
-
-    */
 
   }
 
