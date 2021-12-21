@@ -8,7 +8,7 @@ import Test from 'ava'
 
 import { Migration as CreateTableMigration } from '../../library/migration/1638499024571-create-table-migration.js'
 import { Migration as CreateIndexMigrationByName } from '../../library/migration/1638499205407-create-index-migration-by-name.js'
-import { Migration as CreateIndexMigrationByNameInstalled } from '../../library/migration/1638499205408-create-index-migration-by-name-installed.js'
+import { Migration as CreateIndexMigrationByNameIsInstalled } from '../../library/migration/1638499205408-create-index-migration-by-name-is-installed.js'
 
 const FilePath = __filePath
 
@@ -94,7 +94,7 @@ Test.serial('isMigrationInstalled(\'...\') returns false when not installed', as
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     test.is(await database.isMigrationInstalled('test-migration'), false)
 
@@ -114,7 +114,7 @@ Test.serial('isMigrationInstalled(\'...\') returns true when installed', async (
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
 
@@ -136,7 +136,7 @@ Test.serial('isMigrationInstalled(\'...\') returns false when uninstalled', asyn
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
     await database.uninstallMigration('test-migration')
@@ -159,7 +159,7 @@ Test.serial('isMigrationInstalled(\'...\') returns true when reinstalled', async
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
     await database.uninstallMigration('test-migration')
@@ -183,7 +183,7 @@ Test.serial('isMigrationInstalled(\'...\') returns false when reuninstalled', as
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
     await database.uninstallMigration('test-migration')
@@ -208,7 +208,7 @@ Test.serial('installMigration(\'...\')', async (test) => {
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await test.notThrowsAsync(database.installMigration('test-migration'))
     
@@ -228,7 +228,7 @@ Test.serial('installMigration(\'...\') when reinstalled', async (test) => {
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
     await test.notThrowsAsync(database.installMigration('test-migration'))
@@ -263,7 +263,7 @@ Test.serial('uninstallMigration(\'...\')', async (test) => {
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
     await test.notThrowsAsync(database.uninstallMigration('test-migration'))
@@ -284,10 +284,30 @@ Test.serial('uninstallMigration(\'...\') when reuninstalled', async (test) => {
 
     await (new CreateTableMigration(database)).install()
     await (new CreateIndexMigrationByName(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
     await database.uninstallMigration('test-migration')
+    await test.notThrowsAsync(database.uninstallMigration('test-migration'))
+
+  } finally {
+    await database.close()
+  }
+
+})
+
+Test.serial('uninstallMigration(\'...\') when not installed', async (test) => {
+
+  let database = new LoggedDatabase(DatabasePath)
+
+  await database.open()
+
+  try {
+
+    await (new CreateTableMigration(database)).install()
+    await (new CreateIndexMigrationByName(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
+
     await test.notThrowsAsync(database.uninstallMigration('test-migration'))
 
   } finally {
@@ -305,7 +325,7 @@ Test.serial('beginTransaction()', async (test) => {
   try {
 
     await (new CreateTableMigration(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await test.notThrowsAsync(database.beginTransaction())
     await database.installMigration('test-migration')
@@ -328,7 +348,7 @@ Test.serial('commitTransaction()', async (test) => {
   try {
 
     await (new CreateTableMigration(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.beginTransaction()
     await database.installMigration('test-migration')
@@ -351,7 +371,7 @@ Test.serial('rollbackTransaction()', async (test) => {
   try {
 
     await (new CreateTableMigration(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.beginTransaction()
     await database.installMigration('test-migration')
@@ -446,7 +466,7 @@ Test.serial('all(\'...\')', async (test) => {
   try {
 
     await (new CreateTableMigration(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
 
@@ -476,7 +496,7 @@ Test.serial('all(\'...\', { ... })', async (test) => {
   try {
 
     await (new CreateTableMigration(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
 
@@ -531,7 +551,7 @@ Test.serial('explain(\'...\', { ... })', async (test) => {
   try {
 
     await (new CreateTableMigration(database)).install()
-    await (new CreateIndexMigrationByNameInstalled(database)).install()
+    await (new CreateIndexMigrationByNameIsInstalled(database)).install()
 
     await database.installMigration('test-migration')
 
@@ -539,14 +559,14 @@ Test.serial('explain(\'...\', { ... })', async (test) => {
 
       let query = ' select      true \
                     from        migration \
-                    indexed by  migrationByNameInstalled \
+                    indexed by  migrationByNameIsInstalled \
                     where       migration.name = $name and \
                                 migration.isInstalled = true'
 
       let [ row ] = await database.explain(query, { '$name': 'test-migration' })
       
       test.log(row.detail)
-      test.is(row.detail, 'SEARCH TABLE migration USING COVERING INDEX migrationByNameInstalled (name=? AND isInstalled=?)')
+      test.is(row.detail, 'SEARCH TABLE migration USING COVERING INDEX migrationByNameIsInstalled (name=? AND isInstalled=?)')
 
     })
 

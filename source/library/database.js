@@ -68,7 +68,7 @@ class Database {
 
     let query = ' select      true \
                   from        migration \
-                  indexed by  migrationByNameInstalled \
+                  indexed by  migrationByNameIsInstalled \
                   where       migration.name = $name and \
                               migration.isInstalled = true'
 
@@ -84,7 +84,7 @@ class Database {
                                                           whenUnInstalled ) \
                       values (  $name, \
                                 true, \
-                                datetime(\'now\', \'utc\'), \
+                                datetime(\'now\', \'localtime\'), \
                                 null )'
 
     return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })
@@ -96,7 +96,7 @@ class Database {
     // let statement = ' update      migration \
     //                   indexed by  migrationByNameWhen \
     //                   set         isUnInstalled = true, \
-    //                               whenUnInstalled = datetime(\'now\', \'utc\') \
+    //                               whenUnInstalled = datetime(\'now\', \'localtime\') \
     //                   from        ( select      migration.name                as name, \
     //                                             max(migration.whenInstalled)  as maximumWhenInstalled \
     //                                 from        migration \
@@ -111,7 +111,7 @@ class Database {
     let statement = ' update      migration \
                       indexed by  migrationByName \
                       set         isInstalled = false, \
-                                  whenUnInstalled = datetime(\'now\', \'utc\') \
+                                  whenUnInstalled = datetime(\'now\', \'localtime\') \
                       where       name = $name'
 
     return isExplained ? this.explain(statement, { '$name': name }) : this.run(statement, { '$name': name })

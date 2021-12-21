@@ -4,3 +4,12 @@ export mablung-makefile-environment-path := $(shell npx mablung-makefile-environ
 endif
 
 include $(mablung-makefile-environment-path)
+
+pre-run::
+	$(eval export NPX_PATH = $(shell npx shx which npx))
+
+pre-cover::
+	$(eval export NPX_PATH = $(shell npx shx which npx))
+
+pre-test::
+	$(eval export NPX_PATH = $(shell npx shx which npx))

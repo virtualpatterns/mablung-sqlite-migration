@@ -7,7 +7,7 @@ import Test from 'ava'
 
 import { Migration as CreateTableMigration } from '../../library/migration/1638499024571-create-table-migration.js'
 import { Migration as CreateIndexMigrationByName } from '../../library/migration/1638499205407-create-index-migration-by-name.js'
-import { Migration as CreateIndexMigrationByNameInstalled } from '../../library/migration/1638499205408-create-index-migration-by-name-installed.js'
+import { Migration as CreateIndexMigrationByNameIsInstalled } from '../../library/migration/1638499205408-create-index-migration-by-name-is-installed.js'
 
 const FilePath = __filePath
 const FolderPath = Path.dirname(FilePath)
@@ -18,7 +18,7 @@ const LoggedDatabase = CreateLoggedDatabase(Database, LogPath)
 const LoggedMigration = CreateLoggedMigration(Migration, LoggedDatabase)
 const LoggedCreateTableMigration = CreateLoggedMigration(CreateTableMigration, LoggedDatabase)
 const LoggedCreateIndexMigrationByName = CreateLoggedMigration(CreateIndexMigrationByName, LoggedDatabase)
-const LoggedCreateIndexMigrationByNameInstalled = CreateLoggedMigration(CreateIndexMigrationByNameInstalled, LoggedDatabase)
+const LoggedCreateIndexMigrationByNameIsInstalled = CreateLoggedMigration(CreateIndexMigrationByNameIsInstalled, LoggedDatabase)
 
 Test.before(async () => {
   await FileSystem.ensureDir(Path.dirname(LogPath))
@@ -33,7 +33,7 @@ Test.serial('Migration(...)', (test) => {
   test.notThrows(() => { new LoggedCreateTableMigration(new LoggedDatabase(DatabasePath)) })
 })
 
-Test.serial('isInstalled() returns false if table not installed', async (test) => {
+Test.serial('isInstalled() returns false if table not created', async (test) => {
 
   let database = new LoggedDatabase(DatabasePath)
 
@@ -47,7 +47,7 @@ Test.serial('isInstalled() returns false if table not installed', async (test) =
 
 })
 
-Test.serial('isInstalled() returns false if index not installed', async (test) => {
+Test.serial('isInstalled() returns false if index not created', async (test) => {
 
   let database = new LoggedDatabase(DatabasePath)
 
@@ -75,7 +75,7 @@ Test.serial('isInstalled() returns false when not installed', async (test) => {
 
     await (new LoggedCreateTableMigration(database)).install()
     await (new LoggedCreateIndexMigrationByName(database)).install()
-    await (new LoggedCreateIndexMigrationByNameInstalled(database)).install()
+    await (new LoggedCreateIndexMigrationByNameIsInstalled(database)).install()
 
     let migration = new LoggedMigration(Path.normalize(`${FolderPath}/../../library/migration/does-not-exist.js`), database)
 
@@ -97,7 +97,7 @@ Test.serial('isInstalled() returns true when installed', async (test) => {
 
     await (new LoggedCreateTableMigration(database)).install()
     await (new LoggedCreateIndexMigrationByName(database)).install()
-    await (new LoggedCreateIndexMigrationByNameInstalled(database)).install()
+    await (new LoggedCreateIndexMigrationByNameIsInstalled(database)).install()
 
     let migration = new LoggedMigration(Path.normalize(`${FolderPath}/../../library/migration/does-not-exist.js`), database)
 
@@ -121,7 +121,7 @@ Test.serial('isInstalled() returns false when uninstalled', async (test) => {
 
     await (new LoggedCreateTableMigration(database)).install()
     await (new LoggedCreateIndexMigrationByName(database)).install()
-    await (new LoggedCreateIndexMigrationByNameInstalled(database)).install()
+    await (new LoggedCreateIndexMigrationByNameIsInstalled(database)).install()
 
     let migration = new LoggedMigration(Path.normalize(`${FolderPath}/../../library/migration/does-not-exist.js`), database)
 
@@ -152,7 +152,7 @@ Test.serial('isInstalled() throws Error', async (test) => {
 
       await (new LoggedCreateTableMigration(database)).install()
       await (new LoggedCreateIndexMigrationByName(database)).install()
-      await (new LoggedCreateIndexMigrationByNameInstalled(database)).install()
+      await (new LoggedCreateIndexMigrationByNameIsInstalled(database)).install()
 
       await test.throwsAsync((new LoggedMigration(Path.normalize(`${FolderPath}/../../library/migration/does-not-exist.js`), database)).isInstalled(), { 'instanceOf': Error })
 
@@ -176,7 +176,7 @@ Test.serial('install()', async (test) => {
 
     await (new LoggedCreateTableMigration(database)).install()
     await (new LoggedCreateIndexMigrationByName(database)).install()
-    await (new LoggedCreateIndexMigrationByNameInstalled(database)).install()
+    await (new LoggedCreateIndexMigrationByNameIsInstalled(database)).install()
 
     let migration = new LoggedMigration(Path.normalize(`${FolderPath}/../../library/migration/does-not-exist.js`), database)
 
@@ -198,11 +198,11 @@ Test.serial('uninstall()', async (test) => {
 
     await (new LoggedCreateTableMigration(database)).install()
     await (new LoggedCreateIndexMigrationByName(database)).install()
-    await (new LoggedCreateIndexMigrationByNameInstalled(database)).install()
+    await (new LoggedCreateIndexMigrationByNameIsInstalled(database)).install()
 
     let migration = new LoggedMigration(Path.normalize(`${FolderPath}/../../library/migration/does-not-exist.js`), database)
 
-    await test.notThrowsAsync(migration.install())
+    await migration.install()
     await test.notThrowsAsync(migration.uninstall())
 
   } finally {
@@ -211,35 +211,35 @@ Test.serial('uninstall()', async (test) => {
 
 })
 
-Test.serial('getMigration(\'...\') (not logged)', async (test) => {
+Test.serial('getMigration(default, default, \'...\') (not logged)', async (test) => {
 
-  let migration = await Migration.getMigration(undefined, undefined, DatabasePath)
-
-  test.is(migration.length, 3)
-  test.is(migration[0].name, '1638499024571-create-table-migration')
-  test.is(await migration[0].isInstalled(), false)
-  test.is(migration[1].name, '1638499205407-create-index-migration-by-name')
-  test.is(await migration[1].isInstalled(), false)
-  test.is(migration[2].name, '1638499205408-create-index-migration-by-name-installed')
-  test.is(await migration[2].isInstalled(), false)
-
-})
-
-Test.serial('getMigration(\'...\') (logged)', async (test) => {
-
-  let migration = await LoggedMigration.getMigration(undefined, undefined, DatabasePath)
+  let migration = await Migration.getMigration(Migration.defaultFrom, Migration.defaultTo, DatabasePath)
 
   test.is(migration.length, 3)
   test.is(migration[0].name, '1638499024571-create-table-migration')
   test.is(await migration[0].isInstalled(), false)
   test.is(migration[1].name, '1638499205407-create-index-migration-by-name')
   test.is(await migration[1].isInstalled(), false)
-  test.is(migration[2].name, '1638499205408-create-index-migration-by-name-installed')
+  test.is(migration[2].name, '1638499205408-create-index-migration-by-name-is-installed')
   test.is(await migration[2].isInstalled(), false)
 
 })
 
-Test.serial('getMigration(...)', async (test) => {
+Test.serial('getMigration(default, default, \'...\') (logged)', async (test) => {
+
+  let migration = await LoggedMigration.getMigration(Migration.defaultFrom, Migration.defaultTo, DatabasePath)
+
+  test.is(migration.length, 3)
+  test.is(migration[0].name, '1638499024571-create-table-migration')
+  test.is(await migration[0].isInstalled(), false)
+  test.is(migration[1].name, '1638499205407-create-index-migration-by-name')
+  test.is(await migration[1].isInstalled(), false)
+  test.is(migration[2].name, '1638499205408-create-index-migration-by-name-is-installed')
+  test.is(await migration[2].isInstalled(), false)
+
+})
+
+Test.serial('getMigration(default, default, ...)', async (test) => {
 
   let database = new LoggedDatabase(DatabasePath)
 
@@ -247,14 +247,14 @@ Test.serial('getMigration(...)', async (test) => {
 
   try {
 
-    let migration = await LoggedMigration.getMigration(undefined, undefined, database)
+    let migration = await LoggedMigration.getMigration(Migration.defaultFrom, Migration.defaultTo, database)
 
     test.is(migration.length, 3)
     test.is(migration[0].name, '1638499024571-create-table-migration')
     test.is(await migration[0].isInstalled(), false)
     test.is(migration[1].name, '1638499205407-create-index-migration-by-name')
     test.is(await migration[1].isInstalled(), false)
-    test.is(migration[2].name, '1638499205408-create-index-migration-by-name-installed')
+    test.is(migration[2].name, '1638499205408-create-index-migration-by-name-is-installed')
     test.is(await migration[2].isInstalled(), false)
 
   } finally {
@@ -263,23 +263,23 @@ Test.serial('getMigration(...)', async (test) => {
 
 })
 
-Test.serial('installMigration(\'...\')', async (test) => {
+Test.serial('installMigration(default, default, \'...\')', async (test) => {
 
-  await LoggedMigration.installMigration(undefined, undefined, DatabasePath)
+  await LoggedMigration.installMigration(Migration.defaultFrom, Migration.defaultTo, DatabasePath)
 
-  let migration = await LoggedMigration.getMigration(undefined, undefined, DatabasePath)
+  let migration = await LoggedMigration.getMigration(Migration.defaultFrom, Migration.defaultTo, DatabasePath)
 
   test.is(migration.length, 3)
   test.is(migration[0].name, '1638499024571-create-table-migration')
   test.is(await migration[0].isInstalled(), true)
   test.is(migration[1].name, '1638499205407-create-index-migration-by-name')
   test.is(await migration[1].isInstalled(), true)
-  test.is(migration[2].name, '1638499205408-create-index-migration-by-name-installed')
+  test.is(migration[2].name, '1638499205408-create-index-migration-by-name-is-installed')
   test.is(await migration[2].isInstalled(), true)
 
 })
 
-Test.serial('installMigration(...)', async (test) => {
+Test.serial('installMigration(default, default, ...)', async (test) => {
 
   let database = new LoggedDatabase(DatabasePath)
 
@@ -287,16 +287,16 @@ Test.serial('installMigration(...)', async (test) => {
 
   try {
 
-    await LoggedMigration.installMigration(undefined, undefined, database)
+    await LoggedMigration.installMigration(Migration.defaultFrom, Migration.defaultTo, database)
 
-    let migration = await LoggedMigration.getMigration(undefined, undefined, database)
+    let migration = await LoggedMigration.getMigration(Migration.defaultFrom, Migration.defaultTo, database)
 
     test.is(migration.length, 3)
     test.is(migration[0].name, '1638499024571-create-table-migration')
     test.is(await migration[0].isInstalled(), true)
     test.is(migration[1].name, '1638499205407-create-index-migration-by-name')
     test.is(await migration[1].isInstalled(), true)
-    test.is(migration[2].name, '1638499205408-create-index-migration-by-name-installed')
+    test.is(migration[2].name, '1638499205408-create-index-migration-by-name-is-installed')
     test.is(await migration[2].isInstalled(), true)
 
   } finally {
@@ -305,24 +305,24 @@ Test.serial('installMigration(...)', async (test) => {
 
 })
 
-Test.serial('uninstallMigration(\'...\')', async (test) => {
+Test.serial('uninstallMigration(default, default, \'...\')', async (test) => {
 
-  await LoggedMigration.installMigration(undefined, undefined, DatabasePath)
-  await LoggedMigration.uninstallMigration(undefined, undefined, DatabasePath)
+  await LoggedMigration.installMigration(Migration.defaultFrom, Migration.defaultTo, DatabasePath)
+  await LoggedMigration.uninstallMigration(Migration.defaultFrom, Migration.defaultTo, DatabasePath)
 
-  let migration = await LoggedMigration.getMigration(undefined, undefined, DatabasePath)
+  let migration = await LoggedMigration.getMigration(Migration.defaultFrom, Migration.defaultTo, DatabasePath)
 
   test.is(migration.length, 3)
   test.is(migration[0].name, '1638499024571-create-table-migration')
   test.is(await migration[0].isInstalled(), false)
   test.is(migration[1].name, '1638499205407-create-index-migration-by-name')
   test.is(await migration[1].isInstalled(), false)
-  test.is(migration[2].name, '1638499205408-create-index-migration-by-name-installed')
+  test.is(migration[2].name, '1638499205408-create-index-migration-by-name-is-installed')
   test.is(await migration[2].isInstalled(), false)
 
 })
 
-Test.serial('uninstallMigration(...)', async (test) => {
+Test.serial('uninstallMigration(default, default, ...)', async (test) => {
 
   let database = new LoggedDatabase(DatabasePath)
 
@@ -330,17 +330,17 @@ Test.serial('uninstallMigration(...)', async (test) => {
 
   try {
 
-    await LoggedMigration.installMigration(undefined, undefined, database)
-    await LoggedMigration.uninstallMigration(undefined, undefined, database)
+    await LoggedMigration.installMigration(Migration.defaultFrom, Migration.defaultTo, database)
+    await LoggedMigration.uninstallMigration(Migration.defaultFrom, Migration.defaultTo, database)
 
-    let migration = await LoggedMigration.getMigration(undefined, undefined, database)
+    let migration = await LoggedMigration.getMigration(Migration.defaultFrom, Migration.defaultTo, database)
 
     test.is(migration.length, 3)
     test.is(migration[0].name, '1638499024571-create-table-migration')
     test.is(await migration[0].isInstalled(), false)
     test.is(migration[1].name, '1638499205407-create-index-migration-by-name')
     test.is(await migration[1].isInstalled(), false)
-    test.is(migration[2].name, '1638499205408-create-index-migration-by-name-installed')
+    test.is(migration[2].name, '1638499205408-create-index-migration-by-name-is-installed')
     test.is(await migration[2].isInstalled(), false)
 
   } finally {
